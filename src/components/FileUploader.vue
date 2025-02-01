@@ -31,13 +31,17 @@ const formatDate = (date) => {
 }
 
 const formatSize = (bytes) => {
+  if (!bytes && bytes !== 0) return '0 B'
+
   const units = ['B', 'KB', 'MB', 'GB']
   let size = bytes
   let unitIndex = 0
+
   while (size >= 1024 && unitIndex < units.length - 1) {
     size /= 1024
     unitIndex++
   }
+
   return `${size.toFixed(2)} ${units[unitIndex]}`
 }
 </script>
@@ -98,16 +102,14 @@ const formatSize = (bytes) => {
           <span class="spinner"></span>
           Envoi en cours...
         </span>
-        <span v-else>
-          Envoyer les fichiers
-        </span>
+        <span v-else> Envoyer les fichiers </span>
       </button>
     </div>
 
     <div v-if="uploadStore.uploadComplete" class="upload-complete">
       <p>✅ Upload terminé avec succès !</p>
       <p class="download-info">
-        Un lien de téléchargement sera disponible 7 jours après l'événement.
+        Un lien de téléchargement sera disponible immédiatement après l'envoi.
       </p>
     </div>
   </div>

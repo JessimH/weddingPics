@@ -10,15 +10,20 @@ export const useUploadStore = defineStore('upload', {
 
   actions: {
     addFiles(newFiles) {
-      const validFiles = newFiles.filter(file => {
+      const validFiles = Array.from(newFiles).filter(file => {
+        if (!file || !file.name) return false
+
         const isValid = file.type.startsWith('image/') || file.type.startsWith('video/')
         const isUnder100MB = file.size <= 100 * 1024 * 1024 // 100MB limit
         return isValid && isUnder100MB
       })
 
       this.files = [...this.files, ...validFiles.map(file => ({
-        ...file,
-        progress: 0
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        progress: 0,
+        file: file // Garder une référence au fichier original
       }))]
     },
 
@@ -34,30 +39,32 @@ export const useUploadStore = defineStore('upload', {
 
       try {
         for (const file of this.files) {
-          const fileExt = file.name.split('.').pop()
+          const fileExt = file.file.name.split('.').pop()
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
           const filePath = `${eventDate}/${fileName}`
 
           const { error: uploadError } = await supabase.storage
             .from('wedding-files')
-            .upload(filePath, file)
+            .upload(filePath, file.file, {
+              contentType: file.file.type
+            })
 
           if (uploadError) throw uploadError
 
           await supabase.from('uploads').insert({
-            file_name: file.name,
+            file_name: file.file.name,
             file_path: filePath,
-            file_type: file.type,
-            file_size: file.size
+            file_type: file.file.type,
+            file_size: file.file.size
           })
 
           const index = this.files.indexOf(file)
           this.files[index].progress = 100
         }
 
-        // Création du lien de téléchargement
-        const expiryDate = new Date(eventDate)
-        expiryDate.setDate(expiryDate.getDate() + 7)
+        // Création du lien de téléchargement immédiat
+        const expiryDate = new Date()
+        expiryDate.setDate(expiryDate.getDate() + 30) // Validité de 30 jours par exemple
 
         await supabase.from('download_links').insert({
           link_token: Math.random().toString(36).substring(2),

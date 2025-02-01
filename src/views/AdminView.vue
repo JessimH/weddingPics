@@ -1,0 +1,158 @@
+<script setup>
+import { ref } from 'vue'
+import { supabase } from '@/lib/supabase'
+
+const isGenerating = ref(false)
+const generatedLink = ref(null)
+const error = ref(null)
+
+const generateDownloadLink = async () => {
+  isGenerating.value = true
+  error.value = null
+
+  try {
+    // Génération du token unique
+    const token = Math.random().toString(36).substring(2)
+
+    // Date d'expiration (30 jours)
+    const expiryDate = new Date()
+    expiryDate.setDate(expiryDate.getDate() + 30)
+
+    // Création du lien dans la base de données
+    const { error: dbError } = await supabase.from('download_links').insert({
+      link_token: token,
+      expires_at: expiryDate.toISOString(),
+    })
+
+    if (dbError) throw dbError
+
+    // Construction de l'URL complète
+    const baseUrl = window.location.origin
+    generatedLink.value = `${baseUrl}/download/${token}`
+  } catch (e) {
+    console.error('Erreur:', e)
+    error.value = 'Une erreur est survenue lors de la génération du lien'
+  } finally {
+    isGenerating.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="admin-page">
+    <div class="admin-container">
+      <h1>Générer un lien de téléchargement</h1>
+
+      <div class="actions">
+        <button @click="generateDownloadLink" :disabled="isGenerating" class="generate-button">
+          <span v-if="isGenerating">Génération en cours...</span>
+          <span v-else>Générer un nouveau lien</span>
+        </button>
+      </div>
+
+      <div v-if="error" class="error-message">
+        {{ error }}
+      </div>
+
+      <div v-if="generatedLink" class="link-container">
+        <h2>Lien généré :</h2>
+        <div class="link-box">
+          <input type="text" readonly :value="generatedLink" ref="linkInput" />
+          <button @click="navigator.clipboard.writeText(generatedLink)">Copier</button>
+        </div>
+        <p class="info">Ce lien sera valide pendant 30 jours</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.admin-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.admin-container {
+  max-width: 800px;
+  width: 100%;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.actions {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.generate-button {
+  padding: 12px 24px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.generate-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #d32f2f;
+  text-align: center;
+  margin: 20px 0;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 4px;
+}
+
+.link-container {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.link-box {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.link-box input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.link-box button {
+  padding: 10px 20px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.info {
+  color: #666;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+}
+</style>
