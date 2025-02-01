@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 const isGenerating = ref(false)
 const generatedLink = ref(null)
 const error = ref(null)
+const isCopied = ref(false)
 
 const generateDownloadLink = async () => {
   isGenerating.value = true
@@ -36,6 +37,29 @@ const generateDownloadLink = async () => {
     isGenerating.value = false
   }
 }
+
+const copyToClipboard = async () => {
+  try {
+    await navigator?.clipboard?.writeText(generatedLink.value)
+    isCopied.value = true
+    setTimeout(() => {
+      isCopied.value = false
+    }, 2000) // Réinitialise après 2 secondes
+  } catch (err) {
+    console.log(err)
+    // Fallback pour les navigateurs qui ne supportent pas l'API Clipboard
+    const textarea = document.createElement('textarea')
+    textarea.value = generatedLink.value
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    isCopied.value = true
+    setTimeout(() => {
+      isCopied.value = false
+    }, 2000)
+  }
+}
 </script>
 
 <template>
@@ -58,7 +82,9 @@ const generateDownloadLink = async () => {
         <h2>Lien généré :</h2>
         <div class="link-box">
           <input type="text" readonly :value="generatedLink" ref="linkInput" />
-          <button @click="navigator.clipboard.writeText(generatedLink)">Copier</button>
+          <button @click="copyToClipboard" :class="{ copied: isCopied }">
+            {{ isCopied ? 'Copié !' : 'Copier' }}
+          </button>
         </div>
         <p class="info">Ce lien sera valide pendant 30 jours</p>
       </div>
@@ -147,6 +173,10 @@ h1 {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.link-box button.copied {
+  background-color: #4caf50;
 }
 
 .info {
