@@ -120,9 +120,9 @@ const formatSize = (bytes) => {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  background: white;
+  background: var(--wedding-light);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(212, 185, 165, 0.15);
 }
 
 h1 {
@@ -138,19 +138,19 @@ h1 {
 }
 
 .upload-zone {
-  border: 2px dashed #ccc;
+  border: 2px dashed var(--wedding-primary);
   padding: 40px;
   text-align: center;
   margin: 20px 0;
   border-radius: 8px;
-  background: #f9f9f9;
+  background: rgba(245, 230, 224, 0.3);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .upload-zone.dragging {
-  border-color: #4caf50;
-  background: #e8f5e9;
+  border-color: var(--wedding-accent);
+  background: rgba(139, 115, 85, 0.1);
 }
 
 .file-input {
@@ -223,7 +223,7 @@ h1 {
 
 .progress {
   height: 100%;
-  background-color: #4caf50;
+  background-color: var(--wedding-success);
   transition: width 0.3s ease;
 }
 
@@ -243,8 +243,8 @@ h1 {
 
 .upload-button {
   padding: 12px 30px;
-  background-color: #4caf50;
-  color: white;
+  background-color: var(--wedding-primary);
+  color: var(--wedding-dark);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -280,8 +280,9 @@ h1 {
   text-align: center;
   margin-top: 20px;
   padding: 20px;
-  background-color: #e8f5e9;
+  background-color: rgba(145, 180, 160, 0.2);
   border-radius: 4px;
+  border: 1px solid var(--wedding-success);
 }
 
 .download-info {

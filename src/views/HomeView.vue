@@ -14,6 +14,7 @@ const eventDate = '2025-07-05'
 <style scoped>
 .home {
   min-height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;

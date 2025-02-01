@@ -13,6 +13,7 @@ const isDownloading = ref(false)
 const downloadProgress = ref(0)
 const totalFiles = ref(0)
 const totalSize = ref('0 MB')
+const availableFiles = ref([])
 
 onMounted(async () => {
   try {
@@ -31,13 +32,26 @@ onMounted(async () => {
     isExpired.value = new Date(link.expires_at) < new Date()
 
     if (!isExpired.value) {
-      const { data: files, error: filesError } = await supabase.from('uploads').select('*')
+      const { data: dbFiles } = await supabase.from('uploads').select('*')
 
-      if (filesError) throw filesError
+      for (const file of dbFiles) {
+        const { data: fileExists } = await supabase.storage
+          .from('wedding-files')
+          .createSignedUrl(file.file_path, 60)
 
-      totalFiles.value = files.length
-      const totalBytes = files.reduce((acc, file) => acc + file.file_size, 0)
+        if (fileExists) {
+          availableFiles.value.push(file)
+        }
+      }
+
+      totalFiles.value = availableFiles.value.length
+      const totalBytes = availableFiles.value.reduce((acc, file) => acc + file.file_size, 0)
       totalSize.value = formatSize(totalBytes)
+
+      if (totalFiles.value === 0) {
+        error.value = "Aucun fichier n'est disponible au téléchargement."
+        isValid.value = false
+      }
     }
   } catch (e) {
     console.error('Erreur:', e)
@@ -53,18 +67,27 @@ const downloadAll = async () => {
   downloadProgress.value = 0
 
   try {
-    const { data: files } = await supabase.from('uploads').select('*')
-
     const zip = new JSZip()
-    const totalFiles = files.length
+    const totalFiles = availableFiles.value.length
     let processedFiles = 0
 
-    for (const file of files) {
-      const { data } = await supabase.storage.from('wedding-files').download(file.file_path)
+    for (const file of availableFiles.value) {
+      try {
+        const { data } = await supabase.storage.from('wedding-files').download(file.file_path)
 
-      zip.file(file.file_name, data)
-      processedFiles++
-      downloadProgress.value = Math.round((processedFiles / totalFiles) * 100)
+        if (data) {
+          zip.file(file.file_name, data)
+          processedFiles++
+          downloadProgress.value = Math.round((processedFiles / totalFiles) * 100)
+        }
+      } catch (error) {
+        console.warn(`Fichier non trouvé: ${file.file_name}`)
+        continue
+      }
+    }
+
+    if (processedFiles === 0) {
+      throw new Error('Aucun fichier disponible au téléchargement')
     }
 
     const content = await zip.generateAsync({
@@ -159,6 +182,7 @@ const formatSize = (bytes) => {
 <style scoped>
 .download-page {
   min-height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,10 +193,10 @@ const formatSize = (bytes) => {
 .download-container {
   max-width: 800px;
   width: 100%;
-  background: white;
+  background: var(--wedding-light);
   padding: 40px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(212, 185, 165, 0.15);
   text-align: center;
 }
 
@@ -221,11 +245,11 @@ h2 {
 
 .download-button {
   padding: 15px 30px;
-  background-color: #4caf50;
-  color: white;
+  background-color: var(--wedding-primary);
+  color: var(--wedding-dark);
   border: none;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -233,10 +257,11 @@ h2 {
   gap: 10px;
   margin: 0 auto;
   transition: background-color 0.3s;
+  letter-spacing: 0.5px;
 }
 
 .download-button:hover {
-  background-color: #45a049;
+  background-color: var(--wedding-accent);
 }
 
 .download-button:disabled {
@@ -267,7 +292,7 @@ h2 {
 .progress-bar {
   width: 100%;
   height: 8px;
-  background-color: #e0e0e0;
+  background-color: var(--wedding-secondary);
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 10px;
@@ -275,7 +300,7 @@ h2 {
 
 .progress {
   height: 100%;
-  background-color: #4caf50;
+  background-color: var(--wedding-success);
   transition: width 0.3s ease;
 }
 </style>

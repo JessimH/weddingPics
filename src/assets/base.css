@@ -19,6 +19,14 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+
+  /* Palette de couleurs mariage */
+  --wedding-primary: #d4b9a5; /* Rose poudré */
+  --wedding-secondary: #f5e6e0; /* Rose pâle */
+  --wedding-accent: #8b7355; /* Taupe */
+  --wedding-light: #fff9f7; /* Blanc cassé */
+  --wedding-dark: #4a4039; /* Brun foncé */
+  --wedding-success: #91b4a0; /* Vert sauge */
 }
 
 /* semantic color variables for this project */

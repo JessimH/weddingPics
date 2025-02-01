@@ -1,13 +1,62 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase'
 
 const isGenerating = ref(false)
 const generatedLink = ref(null)
 const error = ref(null)
 const isCopied = ref(false)
+const fileCount = ref(0)
+const totalSize = ref('0 MB')
+const hasFiles = ref(false)
+
+onMounted(async () => {
+  try {
+    // Récupérer tous les fichiers de la base de données
+    const { data: dbFiles } = await supabase.from('uploads').select('*')
+
+    if (dbFiles) {
+      // Vérifier l'existence de chaque fichier dans le bucket
+      const availableFiles = []
+      for (const file of dbFiles) {
+        const { data: fileExists } = await supabase.storage
+          .from('wedding-files')
+          .createSignedUrl(file.file_path, 60)
+
+        if (fileExists) {
+          availableFiles.push(file)
+        }
+      }
+
+      // Mettre à jour les compteurs avec uniquement les fichiers existants
+      fileCount.value = availableFiles.length
+      hasFiles.value = fileCount.value > 0
+      const totalBytes = availableFiles.reduce((acc, file) => acc + file.file_size, 0)
+      totalSize.value = formatSize(totalBytes)
+    }
+  } catch (e) {
+    console.error('Erreur:', e)
+    error.value = 'Erreur lors du chargement des fichiers'
+  }
+})
+
+const formatSize = (bytes) => {
+  const units = ['B', 'KB', 'MB', 'GB']
+  let size = bytes
+  let unitIndex = 0
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024
+    unitIndex++
+  }
+  return `${size.toFixed(2)} ${units[unitIndex]}`
+}
 
 const generateDownloadLink = async () => {
+  if (!hasFiles.value) {
+    error.value = "Impossible de générer un lien : aucun fichier n'est disponible"
+    return
+  }
+
   isGenerating.value = true
   error.value = null
 
@@ -67,10 +116,30 @@ const copyToClipboard = async () => {
     <div class="admin-container">
       <h1>Générer un lien de téléchargement</h1>
 
+      <div class="files-info">
+        <h2>État des fichiers</h2>
+        <div class="stats">
+          <div class="stat-item">
+            <span class="stat-label">Nombre de fichiers :</span>
+            <span class="stat-value" :class="{ 'no-files': !hasFiles }">
+              {{ fileCount }}
+            </span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Taille totale :</span>
+            <span class="stat-value">{{ totalSize }}</span>
+          </div>
+        </div>
+      </div>
+
       <div class="actions">
-        <button @click="generateDownloadLink" :disabled="isGenerating" class="generate-button">
+        <button
+          @click="generateDownloadLink"
+          :disabled="isGenerating || !hasFiles"
+          class="generate-button"
+        >
           <span v-if="isGenerating">Génération en cours...</span>
-          <span v-else>Générer un nouveau lien</span>
+          <span v-else>Générer un lien de téléchargement</span>
         </button>
       </div>
 
@@ -95,6 +164,7 @@ const copyToClipboard = async () => {
 <style scoped>
 .admin-page {
   min-height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -123,8 +193,9 @@ h1 {
 
 .generate-button {
   padding: 12px 24px;
-  background-color: #4caf50;
+  background-color: #af4c81;
   color: white;
+  font-weight: 600;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -134,6 +205,7 @@ h1 {
 .generate-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .error-message {
@@ -184,5 +256,41 @@ h1 {
   font-size: 14px;
   text-align: center;
   margin-top: 10px;
+}
+
+.files-info {
+  background-color: var(--wedding-secondary);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 15px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-label {
+  color: var(--wedding-dark);
+  font-size: 0.9em;
+}
+
+.stat-value {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--wedding-accent);
+}
+
+.stat-value.no-files {
+  color: #d32f2f;
 }
 </style>
