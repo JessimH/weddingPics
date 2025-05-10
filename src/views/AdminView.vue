@@ -168,6 +168,7 @@ const copyToClipboard = async () => {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  background-color: #fff5f7 !important;
 }
 
 .admin-container {

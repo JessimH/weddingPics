@@ -14,15 +14,29 @@ defineProps({
 const uploadStore = useUploadStore()
 const fileInput = ref(null)
 const isDragging = ref(false)
+const errorMessage = ref(null)
 
 const handleDrop = (e) => {
   isDragging.value = false
   const files = Array.from(e.dataTransfer.files)
-  uploadStore.addFiles(files)
+  validateAndAddFiles(files)
 }
 
 const handleFileSelect = (e) => {
   const files = Array.from(e.target.files)
+  validateAndAddFiles(files)
+}
+
+const validateAndAddFiles = (files) => {
+  errorMessage.value = null
+  const tooLargeFiles = files.filter((file) => file.size > 100 * 1024 * 1024)
+
+  if (tooLargeFiles.length > 0) {
+    const fileNames = tooLargeFiles.map((file) => file.name).join(', ')
+    errorMessage.value = `Les fichiers suivants sont trop volumineux (max 100MB) : ${fileNames}`
+    return
+  }
+
   uploadStore.addFiles(files)
 }
 
@@ -50,6 +64,10 @@ const formatSize = (bytes) => {
   <div class="uploader">
     <h1>Partagez vos photos et vidéos</h1>
     <p class="event-date">Date du mariage : {{ formatDate(eventDate) }}</p>
+
+    <div v-if="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
 
     <div
       class="upload-zone"
@@ -114,6 +132,7 @@ const formatSize = (bytes) => {
 
 <style scoped>
 .uploader {
+  background-color: white !important;
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
@@ -293,5 +312,16 @@ h1 {
   font-weight: 200;
   font-style: italic;
   color: #666;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #d32f2f;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 10px 0;
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid #ffcdd2;
 }
 </style>

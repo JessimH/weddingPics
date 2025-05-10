@@ -220,7 +220,7 @@ const formatSize = (bytes) => {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background-color: #f5f5f5;
+  background-color: #fff5f7 !important;
 }
 
 .download-container {
@@ -231,6 +231,7 @@ const formatSize = (bytes) => {
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(212, 185, 165, 0.15);
   text-align: center;
+  background-color: white !important;
 }
 
 h1 {
