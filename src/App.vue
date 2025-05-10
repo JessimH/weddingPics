@@ -9,7 +9,7 @@ import { RouterView } from 'vue-router'
 <style>
 body {
   margin: 0;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Inter', sans-serif;
   background-color: var(--wedding-light);
   color: var(--wedding-dark);
 }
@@ -17,7 +17,7 @@ body {
 h1,
 h2,
 h3 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 500;
 }
 
@@ -27,7 +27,7 @@ button {
   border: none;
   padding: 12px 24px;
   border-radius: 4px;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Inter', sans-serif;
   transition: all 0.3s ease;
 }
 

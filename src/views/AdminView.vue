@@ -117,7 +117,6 @@ const copyToClipboard = async () => {
       <h1>Générer un lien de téléchargement</h1>
 
       <div class="files-info">
-        <h2>État des fichiers</h2>
         <div class="stats">
           <div class="stat-item">
             <span class="stat-label">Nombre de fichiers :</span>
@@ -193,7 +192,7 @@ h1 {
 
 .generate-button {
   padding: 12px 24px;
-  background-color: #af4c81;
+  background-color: #ff97a7;
   color: white;
   font-weight: 600;
   border: none;

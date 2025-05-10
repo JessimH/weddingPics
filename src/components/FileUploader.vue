@@ -70,9 +70,9 @@ const formatSize = (bytes) => {
       />
 
       <div class="upload-message">
-        <span class="upload-icon">📸</span>
-        <p>Glissez vos fichiers ici ou cliquez pour sélectionner</p>
-        <p class="upload-info">Images et vidéos uniquement (max 100MB par fichier)</p>
+        <span class="upload-icon">💍</span>
+        <p>Cliquez pour ajoutez vos souvenirs a l'album !*</p>
+        <p class="upload-info">*Images et vidéos uniquement (max 100MB par fichier)</p>
       </div>
     </div>
 
@@ -109,7 +109,7 @@ const formatSize = (bytes) => {
     <div v-if="uploadStore.uploadComplete" class="upload-complete">
       <p>✅ Upload terminé avec succès !</p>
       <p class="download-info">
-        Un lien de téléchargement sera disponible immédiatement après l'envoi.
+        Reyane et Ines recevront vos souvenirs dans les plus brefs délais !
       </p>
     </div>
   </div>
@@ -289,5 +289,12 @@ h1 {
   color: #666;
   font-size: 14px;
   margin-top: 10px;
+}
+
+.upload-info {
+  font-size: 12px;
+  font-weight: 200;
+  font-style: italic;
+  color: #666;
 }
 </style>

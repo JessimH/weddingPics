@@ -14,6 +14,7 @@ const downloadProgress = ref(0)
 const totalFiles = ref(0)
 const totalSize = ref('0 MB')
 const availableFiles = ref([])
+const previewFiles = ref([])
 
 onMounted(async () => {
   try {
@@ -40,9 +41,16 @@ onMounted(async () => {
           .createSignedUrl(file.file_path, 60)
 
         if (fileExists) {
-          availableFiles.value.push(file)
+          availableFiles.value.push({
+            ...file,
+            url: fileExists.signedUrl,
+          })
         }
       }
+
+      // Sélectionner aléatoirement jusqu'à 10 fichiers pour la prévisualisation
+      const shuffled = [...availableFiles.value].sort(() => 0.5 - Math.random())
+      previewFiles.value = shuffled.slice(0, 10)
 
       totalFiles.value = availableFiles.value.length
       const totalBytes = availableFiles.value.reduce((acc, file) => acc + file.file_size, 0)
@@ -81,6 +89,7 @@ const downloadAll = async () => {
           downloadProgress.value = Math.round((processedFiles / totalFiles) * 100)
         }
       } catch (error) {
+        console.error('Erreur:', error)
         console.warn(`Fichier non trouvé: ${file.file_name}`)
         continue
       }
@@ -143,7 +152,9 @@ const formatSize = (bytes) => {
       <div v-else-if="isValid && !isExpired" class="download-content">
         <div class="download-info">
           <h2>✨ Vos photos sont prêtes !</h2>
-          <p>Toutes les photos et vidéos du mariage sont disponibles au téléchargement.</p>
+          <p>
+            Toutes les photos et vidéos du mariage sont disponibles au téléchargement! BSAHTEK !!!!!
+          </p>
 
           <div class="stats">
             <div class="stat-item">
@@ -168,6 +179,28 @@ const formatSize = (bytes) => {
             <div class="progress" :style="{ width: `${downloadProgress}%` }"></div>
           </div>
           <p>{{ downloadProgress }}%</p>
+        </div>
+
+        <!-- Mosaïque de prévisualisation -->
+        <div v-if="previewFiles.length > 0" class="preview-gallery">
+          <h3>Aperçu de certains de vos souvenirs</h3>
+          <div class="preview-grid">
+            <div v-for="file in previewFiles" :key="file.file_path" class="preview-item">
+              <img
+                v-if="file.file_type.startsWith('image/')"
+                :src="file.url"
+                :alt="file.file_name"
+                loading="lazy"
+              />
+              <video
+                v-else-if="file.file_type.startsWith('video/')"
+                :src="file.url"
+                preload="metadata"
+                muted
+                loop
+              ></video>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -239,14 +272,15 @@ h2 {
 
 .stat-item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 5px;
 }
 
 .download-button {
   padding: 15px 30px;
-  background-color: var(--wedding-primary);
-  color: var(--wedding-dark);
+  background-color: #ff97a7;
+  color: white;
+  font-weight: 600;
   border: none;
   border-radius: 8px;
   font-size: 18px;
@@ -261,7 +295,7 @@ h2 {
 }
 
 .download-button:hover {
-  background-color: var(--wedding-accent);
+  background-color: #fd7f92;
 }
 
 .download-button:disabled {
@@ -302,5 +336,42 @@ h2 {
   height: 100%;
   background-color: var(--wedding-success);
   transition: width 0.3s ease;
+}
+
+.preview-gallery {
+  border-top: 1px solid var(--wedding-secondary);
+}
+
+.preview-gallery h3 {
+  text-align: center;
+  color: var(--wedding-dark);
+  margin-bottom: 20px;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  padding: 10px;
+}
+
+.preview-item {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.preview-item img,
+.preview-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.preview-item:hover img,
+.preview-item:hover video {
+  transform: scale(1.05);
 }
 </style>
