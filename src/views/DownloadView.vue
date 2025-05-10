@@ -141,11 +141,11 @@ const formatSize = (bytes) => {
 
       <div v-if="loading" class="loading">
         <div class="spinner"></div>
-        <p>Vérification du lien...</p>
+        <p>Vérification de l'album souvenir...</p>
       </div>
 
       <div v-else-if="error" class="error">
-        <h2>🚫 Lien non valide</h2>
+        <h2>🚫 Oups</h2>
         <p>{{ error }}</p>
       </div>
 
