@@ -84,9 +84,6 @@ const formatSize = (bytes) => {
             <span class="file-name">{{ file.name }}</span>
             <span class="file-size">{{ formatSize(file.size) }}</span>
           </div>
-          <div class="progress-bar">
-            <div class="progress" :style="{ width: `${file.progress || 0}%` }"></div>
-          </div>
           <button @click="uploadStore.removeFile(index)" class="remove-button">×</button>
         </div>
       </div>
