@@ -9,6 +9,7 @@ const isCopied = ref(false)
 const fileCount = ref(0)
 const totalSize = ref('0 MB')
 const hasFiles = ref(false)
+const isLoading = ref(true)
 
 onMounted(async () => {
   try {
@@ -37,6 +38,8 @@ onMounted(async () => {
   } catch (e) {
     console.error('Erreur:', e)
     error.value = 'Erreur lors du chargement des fichiers'
+  } finally {
+    isLoading.value = false
   }
 })
 
@@ -114,47 +117,55 @@ const copyToClipboard = async () => {
 <template>
   <div class="admin-page">
     <div class="admin-container">
-      <h1>Générer un lien de téléchargement</h1>
-
-      <div class="files-info">
-        <div class="stats">
-          <div class="stat-item">
-            <span class="stat-label">Nombre de fichiers :</span>
-            <span class="stat-value" :class="{ 'no-files': !hasFiles }">
-              {{ fileCount }}
-            </span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Taille totale :</span>
-            <span class="stat-value">{{ totalSize }}</span>
-          </div>
+      <div v-if="isLoading" class="loader-container">
+        <div class="loader">
+          <div class="loader-ring"></div>
+          <p>Chargement...</p>
         </div>
       </div>
+      <div v-else>
+        <h1>Générer un lien de téléchargement</h1>
 
-      <div class="actions">
-        <button
-          @click="generateDownloadLink"
-          :disabled="isGenerating || !hasFiles"
-          class="generate-button"
-        >
-          <span v-if="isGenerating">Génération en cours...</span>
-          <span v-else>Générer un lien de téléchargement</span>
-        </button>
-      </div>
+        <div class="files-info">
+          <div class="stats">
+            <div class="stat-item">
+              <span class="stat-label">Nombre de fichiers :</span>
+              <span class="stat-value" :class="{ 'no-files': !hasFiles }">
+                {{ fileCount }}
+              </span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Taille totale :</span>
+              <span class="stat-value">{{ totalSize }}</span>
+            </div>
+          </div>
+        </div>
 
-      <div v-if="error" class="error-message">
-        {{ error }}
-      </div>
-
-      <div v-if="generatedLink" class="link-container">
-        <h2>Lien généré :</h2>
-        <div class="link-box">
-          <input type="text" readonly :value="generatedLink" ref="linkInput" />
-          <button @click="copyToClipboard" :class="{ copied: isCopied }">
-            {{ isCopied ? 'Copié !' : 'Copier' }}
+        <div class="actions">
+          <button
+            @click="generateDownloadLink"
+            :disabled="isGenerating || !hasFiles"
+            class="generate-button"
+          >
+            <span v-if="isGenerating">Génération en cours...</span>
+            <span v-else>Générer un lien de téléchargement</span>
           </button>
         </div>
-        <p class="info">Ce lien sera valide pendant 30 jours</p>
+
+        <div v-if="error" class="error-message">
+          {{ error }}
+        </div>
+
+        <div v-if="generatedLink" class="link-container">
+          <h2>Lien généré :</h2>
+          <div class="link-box">
+            <input type="text" readonly :value="generatedLink" ref="linkInput" />
+            <button @click="copyToClipboard" :class="{ copied: isCopied }">
+              {{ isCopied ? 'Copié !' : 'Copier' }}
+            </button>
+          </div>
+          <p class="info">Ce lien sera valide pendant 30 jours</p>
+        </div>
       </div>
     </div>
   </div>
@@ -292,5 +303,50 @@ h1 {
 
 .stat-value.no-files {
   color: #d32f2f;
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.loader {
+  text-align: center;
+}
+
+.loader-ring {
+  display: inline-block;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+}
+
+.loader-ring:after {
+  content: ' ';
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #ff97a7;
+  border-color: #ff97a7 transparent #ff97a7 transparent;
+  animation: loader-ring 1.2s linear infinite;
+}
+
+@keyframes loader-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loader p {
+  color: #666;
+  font-size: 16px;
+  margin: 0;
 }
 </style>
