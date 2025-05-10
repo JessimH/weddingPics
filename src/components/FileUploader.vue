@@ -15,6 +15,7 @@ const uploadStore = useUploadStore()
 const fileInput = ref(null)
 const isDragging = ref(false)
 const errorMessage = ref(null)
+const filePreviews = ref({})
 
 const handleDrop = (e) => {
   isDragging.value = false
@@ -36,6 +37,18 @@ const validateAndAddFiles = (files) => {
     errorMessage.value = `Les fichiers suivants sont trop volumineux (max 100MB) : ${fileNames}`
     return
   }
+
+  files.forEach((file) => {
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        filePreviews.value[file.name] = e.target.result
+      }
+      reader.readAsDataURL(file)
+    } else if (file.type.startsWith('video/')) {
+      filePreviews.value[file.name] = '🎥'
+    }
+  })
 
   uploadStore.addFiles(files)
 }
@@ -98,6 +111,19 @@ const formatSize = (bytes) => {
       <h3>Fichiers sélectionnés ({{ uploadStore.files.length }})</h3>
       <div class="files-list">
         <div v-for="(file, index) in uploadStore.files" :key="index" class="file-item">
+          <div class="file-preview">
+            <img
+              v-if="filePreviews[file.name] && file.type.startsWith('image/')"
+              :src="filePreviews[file.name]"
+              :alt="file.name"
+              class="preview-image"
+            />
+            <span
+              v-else-if="filePreviews[file.name] && file.type.startsWith('video/')"
+              class="video-icon"
+              >{{ filePreviews[file.name] }}</span
+            >
+          </div>
           <div class="file-info">
             <span class="file-name">{{ file.name }}</span>
             <span class="file-size">{{ formatSize(file.size) }}</span>
@@ -206,22 +232,47 @@ h1 {
 .file-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
   padding: 10px;
   background: #f5f5f5;
   border-radius: 4px;
   margin-bottom: 10px;
 }
 
+.file-preview {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-icon {
+  font-size: 24px;
+}
+
 .file-info {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .file-name {
   font-size: 14px;
   color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .file-size {
@@ -259,8 +310,9 @@ h1 {
 
 .upload-button {
   padding: 12px 30px;
-  background-color: var(--wedding-primary);
-  color: var(--wedding-dark);
+  background-color: #ff97a7;
+  color: white;
+  font-weight: 600;
   border: none;
   border-radius: 4px;
   cursor: pointer;
