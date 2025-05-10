@@ -109,7 +109,7 @@ const formatSize = (bytes) => {
     <div v-if="uploadStore.uploadComplete" class="upload-complete">
       <p>✅ Upload terminé avec succès !</p>
       <p class="download-info">
-        Reyane et Ines recevront vos souvenirs dans les plus brefs délais !
+        Reyane et Inès recevront vos souvenirs dans les plus brefs délais !
       </p>
     </div>
   </div>
