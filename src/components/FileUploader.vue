@@ -30,11 +30,11 @@ const handleFileSelect = (e) => {
 
 const validateAndAddFiles = (files) => {
   errorMessage.value = null
-  const tooLargeFiles = files.filter((file) => file.size > 100 * 1024 * 1024)
+  const tooLargeFiles = files.filter((file) => file.size > 500 * 1024 * 1024)
 
   if (tooLargeFiles.length > 0) {
     const fileNames = tooLargeFiles.map((file) => file.name).join(', ')
-    errorMessage.value = `Les fichiers suivants sont trop volumineux (max 100MB) : ${fileNames}`
+    errorMessage.value = `Les fichiers suivants sont trop volumineux (max 500MB) : ${fileNames}`
     return
   }
 
@@ -103,7 +103,7 @@ const formatSize = (bytes) => {
       <div class="upload-message">
         <span class="upload-icon">💍</span>
         <p>Cliquez pour ajoutez vos souvenirs a l'album !*</p>
-        <p class="upload-info">*Images et vidéos uniquement (max 100MB par fichier)</p>
+        <p class="upload-info">*Images et vidéos uniquement (max 500MB par fichier)</p>
       </div>
     </div>
 

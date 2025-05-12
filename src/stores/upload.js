@@ -14,7 +14,7 @@ export const useUploadStore = defineStore('upload', {
         if (!file || !file.name) return false
 
         const isValid = file.type.startsWith('image/') || file.type.startsWith('video/')
-        const isUnder100MB = file.size <= 100 * 1024 * 1024 // 100MB limit
+        const isUnder100MB = file.size <= 500 * 1024 * 1024 // 500MB limit
         return isValid && isUnder100MB
       })
 
