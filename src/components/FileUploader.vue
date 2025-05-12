@@ -43,9 +43,12 @@ const validateAndAddFiles = (files) => {
 
   if (totalFiles > 20) {
     errorMessage.value = isMobile.value
-      ? `Vous avez déjà ${uploadStore.files.length} fichiers. Vous ne pouvez pas dépasser 20 fichiers au total.`
-      : 'Vous ne pouvez pas sélectionner plus de 20 fichiers à la fois'
-    return
+      ? `Vous avez déjà ${uploadStore.files.length} fichiers.`
+      : 'Plus de 20 fichiers sélectionnés.'
+
+    // On ne garde que les fichiers nécessaires pour atteindre 20
+    const remainingSlots = 20 - (isMobile.value ? uploadStore.files.length : 0)
+    files = files.slice(0, remainingSlots)
   }
 
   const tooLargeFiles = files.filter((file) => file.size > 500 * 1024 * 1024)
