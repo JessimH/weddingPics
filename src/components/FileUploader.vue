@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useUploadStore } from '@/stores/upload'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -16,6 +16,13 @@ const fileInput = ref(null)
 const isDragging = ref(false)
 const errorMessage = ref(null)
 const filePreviews = ref({})
+const isMobile = ref(false)
+
+onMounted(() => {
+  // Détection des appareils mobiles
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera
+  isMobile.value = /iPhone|iPad|iPod|Android/i.test(userAgent)
+})
 
 const handleDrop = (e) => {
   isDragging.value = false
@@ -30,6 +37,17 @@ const handleFileSelect = (e) => {
 
 const validateAndAddFiles = (files) => {
   errorMessage.value = null
+
+  // Sur mobile, on vérifie le nombre total de fichiers déjà sélectionnés + nouveaux
+  const totalFiles = isMobile.value ? uploadStore.files.length + files.length : files.length
+
+  if (totalFiles > 20) {
+    errorMessage.value = isMobile.value
+      ? `Vous avez déjà ${uploadStore.files.length} fichiers. Vous ne pouvez pas dépasser 20 fichiers au total.`
+      : 'Vous ne pouvez pas sélectionner plus de 20 fichiers à la fois'
+    return
+  }
+
   const tooLargeFiles = files.filter((file) => file.size > 500 * 1024 * 1024)
 
   if (tooLargeFiles.length > 0) {
@@ -84,7 +102,7 @@ const formatSize = (bytes) => {
 
     <div
       class="upload-zone"
-      :class="{ dragging: isDragging }"
+      :class="{ dragging: isDragging, 'mobile-upload': isMobile }"
       @dragenter.prevent="isDragging = true"
       @dragover.prevent="isDragging = true"
       @dragleave.prevent="isDragging = false"
@@ -102,8 +120,14 @@ const formatSize = (bytes) => {
 
       <div class="upload-message">
         <span class="upload-icon">💍</span>
-        <p>Cliquez pour ajoutez vos souvenirs a l'album !*</p>
-        <p class="upload-info">*Images et vidéos uniquement (max 500MB par fichier)</p>
+        <p v-if="isMobile">Sélectionnez vos photos une par une</p>
+        <p v-else>Cliquez pour ajoutez vos souvenirs a l'album !*</p>
+        <p class="upload-info">
+          *Images et vidéos uniquement (max 500MB par fichier)
+          <span v-if="isMobile" class="mobile-info">
+            <br />Vous avez sélectionné {{ uploadStore.files.length }}/20 fichiers
+          </span>
+        </p>
       </div>
     </div>
 
@@ -375,5 +399,16 @@ h1 {
   text-align: center;
   font-size: 14px;
   border: 1px solid #ffcdd2;
+}
+
+.mobile-upload {
+  cursor: pointer;
+}
+
+.mobile-info {
+  display: block;
+  margin-top: 8px;
+  font-weight: 500;
+  color: var(--wedding-primary);
 }
 </style>
