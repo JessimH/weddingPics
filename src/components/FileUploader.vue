@@ -116,13 +116,13 @@ const formatSize = (bytes) => {
         multiple
         accept="image/*,video/*"
         class="file-input"
+        :max="20"
         @change="handleFileSelect"
       />
 
       <div class="upload-message">
         <span class="upload-icon">💍</span>
-        <p v-if="isMobile">Sélectionnez vos photos une par une</p>
-        <p v-else>Cliquez pour ajoutez vos souvenirs a l'album !*</p>
+        <p>Cliquez pour ajoutez vos souvenirs a l'album !*</p>
         <p class="upload-info">
           *Images et vidéos uniquement (max 500MB par fichier)
           <span v-if="isMobile" class="mobile-info">
