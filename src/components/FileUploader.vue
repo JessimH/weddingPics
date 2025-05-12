@@ -62,25 +62,14 @@ const validateAndAddFiles = (files) => {
   // Ajout immédiat des fichiers au store
   uploadStore.addFiles(files)
 
-  // Pour les vidéos, on ajoute directement l'icône
+  // Création des aperçus en utilisant URL.createObjectURL
   files.forEach((file) => {
-    if (file.type.startsWith('video/')) {
+    if (file.type.startsWith('image/')) {
+      filePreviews.value[file.name] = URL.createObjectURL(file)
+    } else if (file.type.startsWith('video/')) {
       filePreviews.value[file.name] = '🎥'
     }
   })
-
-  // Génération des aperçus d'images de manière différée
-  if (!isMobile.value) {
-    files.forEach((file) => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          filePreviews.value[file.name] = e.target.result
-        }
-        reader.readAsDataURL(file)
-      }
-    })
-  }
 }
 
 const formatDate = (date) => {
