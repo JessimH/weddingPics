@@ -43,7 +43,7 @@ const validateAndAddFiles = (files) => {
 
   if (totalFiles > 20) {
     errorMessage.value = isMobile.value
-      ? `Vous avez déjà ${uploadStore.files.length} fichiers.`
+      ? `Vous avez essayé d'ajouter plus de 20 fichiers.`
       : 'Plus de 20 fichiers sélectionnés.'
 
     // On ne garde que les fichiers nécessaires pour atteindre 20
@@ -59,6 +59,10 @@ const validateAndAddFiles = (files) => {
     return
   }
 
+  // Ajout immédiat des fichiers au store
+  uploadStore.addFiles(files)
+
+  // Création des aperçus en arrière-plan
   files.forEach((file) => {
     if (file.type.startsWith('image/')) {
       const reader = new FileReader()
@@ -70,8 +74,6 @@ const validateAndAddFiles = (files) => {
       filePreviews.value[file.name] = '🎥'
     }
   })
-
-  uploadStore.addFiles(files)
 }
 
 const formatDate = (date) => {
