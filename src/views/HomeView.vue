@@ -9,6 +9,7 @@ const eventDate = '2025-07-05'
   <main class="home">
     <div class="title-container">
       <h1 class="calligraphy-title">Inès & Reyane</h1>
+      <h3 class="event-date">05 juillet 2025</h3>
     </div>
     <FileUploader :eventDate="eventDate" />
   </main>
@@ -27,12 +28,12 @@ const eventDate = '2025-07-05'
 }
 
 .title-container {
-  margin-bottom: 40px;
+  margin-bottom: 25px;
   text-align: center;
 }
 
 .calligraphy-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Dancing Script', cursive;
   font-size: 3.5rem;
   color: var(--wedding-dark);
   margin: 0;
@@ -40,6 +41,22 @@ const eventDate = '2025-07-05'
   position: relative;
   display: inline-block;
 }
+
+.event-date {
+  font-size: 1.5rem;
+  color: var(--wedding-dark);
+  margin: 0;
+  margin-top: 10px;
+}
+
+.couple-image {
+  width: 50%;
+  height: 50%;
+  object-fit: cover;
+  margin: 20px 0;
+  border-radius: 10px;
+}
+
 /*
 .calligraphy-title::before,
 .calligraphy-title::after {

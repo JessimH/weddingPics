@@ -95,7 +95,8 @@ const formatSize = (bytes) => {
 <template>
   <div class="uploader">
     <h1>Partagez vos photos et vidéos</h1>
-    <p class="event-date">Date du mariage : {{ formatDate(eventDate) }}</p>
+    <img src="../assets/couple.jpeg" alt="couple" class="couple-image" />
+    <p class="event-date">Les photos seront exclusivements accessibles aux mariés.</p>
 
     <div v-if="errorMessage" class="error-message">
       {{ errorMessage }}
@@ -195,7 +196,7 @@ const formatSize = (bytes) => {
 h1 {
   color: #333;
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .event-date {
@@ -411,5 +412,12 @@ h1 {
   margin-top: 8px;
   font-weight: 500;
   color: var(--wedding-primary);
+}
+
+.couple-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 </style>
