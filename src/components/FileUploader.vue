@@ -1,8 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUploadStore } from '@/stores/upload'
-import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
 
 defineProps({
   eventDate: {
@@ -72,10 +70,6 @@ const validateAndAddFiles = (files) => {
   })
 }
 
-const formatDate = (date) => {
-  return format(new Date(date), 'dd MMMM yyyy', { locale: fr })
-}
-
 const formatSize = (bytes) => {
   if (!bytes && bytes !== 0) return '0 B'
 
@@ -123,7 +117,7 @@ const formatSize = (bytes) => {
 
       <div class="upload-message">
         <span class="upload-icon">💍</span>
-        <p>Cliquez pour ajoutez vos souvenirs a l'album !*</p>
+        <p>Cliquez pour ajouter vos souvenirs à l'album !*</p>
         <p class="upload-info">
           *Images et vidéos uniquement (max 500MB par fichier)
           <span v-if="isMobile" class="mobile-info">
